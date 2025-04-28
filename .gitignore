@@ -1,0 +1,6 @@
+# archivos locales de n8n
+.n8n/
+# dependencias npm (si llegas a usarlas)
+node_modules/
+# temporales macOS
+.DS_Store
