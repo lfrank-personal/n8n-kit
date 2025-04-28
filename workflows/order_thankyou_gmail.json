@@ -1,0 +1,179 @@
+{
+  "name": "order_thankyou_gmail",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "1b5445c0-77ac-4c56-b992-9b4e0640fd2f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        0
+      ],
+      "id": "0ebd7369-f55b-4d48-aa93-b357037d9b75",
+      "name": "Webhook",
+      "webhookId": "1b5445c0-77ac-4c56-b992-9b4e0640fd2f"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente post-venta. \nRedacta un correo breve y cordial agradeciendo la compra \n#{{ $json.body.order_number }} de  {{ $json.body.customer.first_name }}\npor {{ $json.body.total_price }} USD.\n\nFirma con algun nombre generado automaticamente como si fuese de una empresa ecommerce\n\nSolamente provee la respuesta como output en JSON format\nNo subject",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -40,
+        0
+      ],
+      "id": "5624928e-8f91-48dc-abe0-a5ca17a0b5f0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-preview-04-17",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        180
+      ],
+      "id": "47343bad-c36c-438c-92dd-f306057850db",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9i1qV74zOBImVda1",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=frankperezleonel@gmail.com",
+        "subject": "=Gracias por tu compra #{{ $('Webhook').item.json.body.order_number }}",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        0
+      ],
+      "id": "c0ba576f-62b2-411f-8c37-59bef426b549",
+      "name": "Gmail",
+      "webhookId": "760e7164-14c3-4c0c-9895-b0fc4d645374",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X2QnYS9dscVEjo5F",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"output\":\"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        140,
+        220
+      ],
+      "id": "465b74b1-c5c1-4e61-8e88-ff3e7d876013",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "localhost:5678",
+            "user-agent": "curl/8.7.1",
+            "accept": "*/*",
+            "content-type": "application/json",
+            "content-length": "137"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "customer": {
+              "first_name": "Ana",
+              "email": "ana@test.com"
+            },
+            "order_number": 1001,
+            "total_price": "75"
+          },
+          "webhookUrl": "http://localhost:5678/webhook-test/1b5445c0-77ac-4c56-b992-9b4e0640fd2f",
+          "executionMode": "test"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "24787b8d-9134-47e5-8b6e-553727a631ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4fc30cdd1ddcac4604169ae04e5b7b71f01fd6265c9daa875e4c63e5cf6e760c"
+  },
+  "id": "cMA4zxIyhlI3fzYK",
+  "tags": []
+}
